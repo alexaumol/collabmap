@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tools &amp; Techniques 2026</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f5f7;
+  font-size: 10px;
+  color: #1a1a2e;
+  width: 277mm;
+}
+
+/* ── HEADER ── */
+.header {
+  background: #1e2761;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+}
+.header-inner { width: 100%; border-collapse: collapse; }
+.logo { font-size: 20px; font-weight: 700; font-style: italic; color: #fff; letter-spacing: -0.5px; }
+.logo span { color: #cc2200; }
+.tagline { font-size: 8.5px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.header-title { font-size: 14px; font-weight: 700; color: #fff; text-align: right; }
+
+/* ── MAIN 4-COL TABLE ── */
+.main-table { width: 100%; border-collapse: separate; border-spacing: 7px 0; margin-bottom: 8px; }
+.col { width: 25%; vertical-align: top; }
+
+/* ── SECTION CARD ── */
+.section { background: #fff; border: 1px solid #dde0ea; border-radius: 10px; padding: 10px; }
+
+/* ── SECTION HEAD ── */
+.sec-head { width: 100%; border-collapse: collapse; margin-bottom: 9px; }
+.sec-head td { padding-bottom: 7px; vertical-align: middle; }
+.border-comm  { border-bottom: 2px solid #1e2761; }
+.border-prod  { border-bottom: 2px solid #cc2200; }
+.border-collab{ border-bottom: 2px solid #1e7645; }
+.border-ai    { border-bottom: 2px solid #7c3ab5; }
+
+.sec-icon {
+  display: inline-block; width: 26px; height: 26px;
+  border-radius: 6px; text-align: center; line-height: 26px;
+  font-size: 12px; font-weight: 700; vertical-align: middle;
+}
+.ic-comm  { background: #e8ebf7; color: #1e2761; }
+.ic-prod  { background: #fde8e8; color: #cc2200; }
+.ic-collab{ background: #e4f5ed; color: #1e7645; }
+.ic-ai    { background: #f2e8fb; color: #7c3ab5; }
+
+.sec-title { font-size: 12px; font-weight: 700; color: #1a1a2e; padding-left: 6px; }
+
+/* ── SUBLABEL ── */
+.sublabel {
+  display: block; font-size: 8px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: #9096aa; margin-bottom: 4px; margin-top: 7px;
+}
+.sublabel-first { margin-top: 0; }
+
+/* ── PILLS ── */
+.pills { line-height: 2; }
+a.pill {
+  display: inline-block; font-size: 9px;
+  padding: 2px 5px 2px 2px; border-radius: 4px;
+  border: 1px solid; text-decoration: none;
+  margin: 1px 1px 1px 0; vertical-align: middle;
+}
+a.pill.comm  { background: #eef0f9; border-color: #b0b8e0; color: #1e2761; }
+a.pill.prod  { background: #fef2f2; border-color: #f0b4b4; color: #991a1a; }
+a.pill.collab{ background: #edf8f2; border-color: #a8d9bc; color: #145c35; }
+a.pill.ai    { background: #f7f0fd; border-color: #c8a0e8; color: #5c2a8c; }
+
+.badge {
+  display: inline-block; width: 14px; height: 14px;
+  border-radius: 3px; text-align: center; line-height: 14px;
+  font-size: 7px; font-weight: 700; color: #fff; vertical-align: middle; margin-right: 2px;
+}
+
+/* ── TECHNIQUES ── */
+.technique {
+  font-size: 9px; background: #f4f5f7; border-radius: 4px;
+  padding: 3px 7px 3px 20px; margin-bottom: 3px;
+  color: #1a1a2e; position: relative;
+}
+.technique::before {
+  content: ''; position: absolute; left: 8px; top: 50%;
+  margin-top: -2.5px; width: 5px; height: 5px;
+  border-radius: 50%; background: #cc2200;
+}
+.technique.comm::before { background: #1e2761; }
+
+/* ── CALENDAR GROUP ── */
+.cal-group { background: #f4f5f7; border-radius: 4px; padding: 4px 7px; margin-bottom: 3px; }
+.cal-table { border-collapse: collapse; width: 100%; }
+.cal-icon-td { font-size: 18px; vertical-align: middle; padding-right: 6px; width: 26px; }
+.cal-line { font-size: 9px; color: #1a1a2e; line-height: 1.7; }
+
+/* ── KANBAN ── */
+.kanban-table { width: 100%; border-collapse: separate; border-spacing: 4px 0; margin-top: 5px; }
+.kb-td { width: 33.3%; vertical-align: top; }
+.kb-col { background: #f4f5f7; border-radius: 4px; padding: 4px 4px 5px; border: 1px solid #dde0ea; }
+.kb-head { font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #6b7280; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1.5px solid; }
+.kb-head.bl { border-color: #9ba8d4; }
+.kb-head.td { border-color: #e8a020; }
+.kb-head.dn { border-color: #2a9e5e; }
+.kb-card { background: #fff; border: 1px solid #dde0ea; border-radius: 3px; padding: 2px 4px; margin-bottom: 2px; font-size: 7.5px; color: #6b7280; }
+.kb-card.wip   { border-left: 2px solid #e8a020; }
+.kb-card.done-c{ border-left: 2px solid #2a9e5e; opacity: .7; }
+
+/* ── FOOTER ── */
+.footer { background: #fff; border-radius: 6px; padding: 6px 14px; border: 1px solid #dde0ea; }
+.footer-table { width: 100%; border-collapse: collapse; }
+.footer-msg { font-size: 8.5px; color: #6b7280; }
+.footer-tag { font-size: 8.5px; font-weight: 700; color: #cc2200; text-align: right; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <table class="header-inner"><tr>
+    <td>
+      <div class="tagline">Work smarter &nbsp;·&nbsp; Work better &nbsp;·&nbsp; Work happier</div>
+    </td>
+    <td style="text-align:right">
+      <div class="header-title">Tools &amp; Techniques Quick Reference</div>
+      <div class="tagline" style="text-align:right">2026</div>
+    </td>
+  </tr></table>
+</div>
+
+<!-- MAIN 4-COLUMN GRID -->
+<table class="main-table"><tr>
+
+  <!-- COMMUNICATION -->
+  <td class="col"><div class="section">
+    <table class="sec-head border-comm"><tr>
+      <td><span class="sec-icon ic-comm">✉</span><span class="sec-title">Communication</span></td>
+    </tr></table>
+
+    <span class="sublabel sublabel-first">Technique</span>
+    <div class="technique comm">Top-down messaging — key message first</div>
+
+    <span class="sublabel">Diagramming</span>
+    <div class="pills">
+      <a class="pill comm" href="https://app.diagrams.net" target="_blank"><span class="badge" style="background:#FF8000">D</span>Draw.io</a>
+      <a class="pill comm" href="https://www.microsoft.com/en-us/microsoft-365/visio/flowchart-software" target="_blank"><span class="badge" style="background:#3955A3">V</span>Visio</a>
+      <a class="pill comm" href="https://www.lucidchart.com" target="_blank"><span class="badge" style="background:#282929">L</span>Lucidchart</a>
+      <a class="pill comm" href="https://miro.com" target="_blank"><span class="badge" style="background:#FFD02F;color:#333">M</span>Miro</a>
+      <a class="pill comm" href="https://www.tldraw.com" target="_blank"><span class="badge" style="background:#111">T</span>tldraw</a>
+    </div>
+
+    <span class="sublabel">Mindmapping</span>
+    <div class="pills">
+      <a class="pill comm" href="https://www.xmind.net" target="_blank"><span class="badge" style="background:#E8343C">X</span>XMind</a>
+      <a class="pill comm" href="https://www.mindmeister.com" target="_blank"><span class="badge" style="background:#FE5745">MM</span>MindMeister</a>
+      <a class="pill comm" href="https://www.freeplane.org" target="_blank"><span class="badge" style="background:#4F8DBF">F</span>Freeplane</a>
+      <a class="pill comm" href="https://gitmind.com" target="_blank"><span class="badge" style="background:#FF6B35">G</span>GitMind</a>
+      <a class="pill comm" href="https://clickup.com" target="_blank"><span class="badge" style="background:#7B68EE">C</span>ClickUp</a>
+    </div>
+  </div></td>
+
+  <!-- PRODUCTIVITY -->
+  <td class="col"><div class="section">
+    <table class="sec-head border-prod"><tr>
+      <td><span class="sec-icon ic-prod">&#9733;</span><span class="sec-title">Productivity</span></td>
+    </tr></table>
+
+    <span class="sublabel sublabel-first">Techniques</span>
+    <div class="cal-group">
+      <table class="cal-table"><tr>
+        <td class="cal-icon-td">&#128197;</td>
+        <td><div class="cal-line">Timeblocking</div><div class="cal-line">Timeboxing</div></td>
+      </tr></table>
+    </div>
+    <div class="technique">GTD + urgent/important matrix</div>
+    <div class="technique">Pomodoro</div>
+
+    <span class="sublabel">Kanban board</span>
+    <table class="kanban-table"><tr>
+      <td class="kb-td"><div class="kb-col">
+        <div class="kb-head bl">Backlog</div>
+        <div class="kb-card">Task A</div>
+        <div class="kb-card">Task B</div>
+        <div class="kb-card">Task C</div>
+      </div></td>
+      <td class="kb-td"><div class="kb-col">
+        <div class="kb-head td">To do</div>
+        <div class="kb-card wip">Task D</div>
+        <div class="kb-card wip">Task E</div>
+      </div></td>
+      <td class="kb-td"><div class="kb-col">
+        <div class="kb-head dn">Done</div>
+        <div class="kb-card done-c">Task F</div>
+        <div class="kb-card done-c">Task G</div>
+      </div></td>
+    </tr></table>
+
+    <span class="sublabel">Tools</span>
+    <div class="pills">
+      <a class="pill prod" href="https://www.minimalistphone.com" target="_blank"><span class="badge" style="background:#1a1a1a">MP</span>Minimalist Phone</a>
+      <a class="pill prod" href="https://super-productivity.com" target="_blank"><span class="badge" style="background:#19A0AC">SP</span>Superproductivity</a>
+      <a class="pill prod" href="https://www.loom.com" target="_blank"><span class="badge" style="background:#625DF5">L</span>Loom</a>
+      <a class="pill prod" href="https://www.atlassian.com/software/confluence" target="_blank"><span class="badge" style="background:#0052CC">C</span>Confluence</a>
+      <a class="pill prod" href="https://clipchamp.com" target="_blank"><span class="badge" style="background:#8661C5">CC</span>Clipchamp</a>
+    </div>
+  </div></td>
+
+  <!-- COLLABORATION -->
+  <td class="col"><div class="section">
+    <table class="sec-head border-collab"><tr>
+      <td><span class="sec-icon ic-collab">&#9783;</span><span class="sec-title">Collaboration</span></td>
+    </tr></table>
+
+    <span class="sublabel sublabel-first">Project mgmt</span>
+    <div class="pills">
+      <a class="pill collab" href="https://www.atlassian.com/software/jira" target="_blank"><span class="badge" style="background:#0052CC">J</span>Jira</a>
+      <a class="pill collab" href="https://asana.com" target="_blank"><span class="badge" style="background:#F06A6A">A</span>Asana</a>
+      <a class="pill collab" href="https://monday.com" target="_blank"><span class="badge" style="background:#FF3D57">M</span>Monday.com</a>
+      <a class="pill collab" href="https://trello.com" target="_blank"><span class="badge" style="background:#0079BF">T</span>Trello</a>
+      <a class="pill collab" href="https://tasks.office.com" target="_blank"><span class="badge" style="background:#31752F">P</span>Planner</a>
+    </div>
+
+    <span class="sublabel">Chat &amp; docs</span>
+    <div class="pills">
+      <a class="pill collab" href="https://slack.com" target="_blank"><span class="badge" style="background:#4A154B">S</span>Slack</a>
+      <a class="pill collab" href="https://www.rocket.chat" target="_blank"><span class="badge" style="background:#F5455C">R</span>Rocket.chat</a>
+      <a class="pill collab" href="https://mattermost.com" target="_blank"><span class="badge" style="background:#0058CC">M</span>Mattermost</a>
+      <a class="pill collab" href="https://www.microsoft.com/en-us/microsoft-teams/group-chat-software" target="_blank"><span class="badge" style="background:#6264A7">T</span>MS Teams</a>
+    </div>
+
+    <span class="sublabel">Platforms</span>
+    <div class="pills">
+      <a class="pill collab" href="https://nextcloud.com" target="_blank"><span class="badge" style="background:#0082C9">N</span>Nextcloud</a>
+      <a class="pill collab" href="https://github.com" target="_blank"><span class="badge" style="background:#24292E">GH</span>GitHub</a>
+      <a class="pill collab" href="https://www.atlassian.com/software/confluence" target="_blank"><span class="badge" style="background:#0052CC">C</span>Confluence</a>
+      <a class="pill collab" href="https://resourceguruapp.com" target="_blank"><span class="badge" style="background:#3CBC8D">RG</span>ResourceGuru</a>
+    </div>
+  </div></td>
+
+  <!-- AI TOOLS -->
+  <td class="col"><div class="section">
+    <table class="sec-head border-ai"><tr>
+      <td><span class="sec-icon ic-ai">&#9670;</span><span class="sec-title">AI tools</span></td>
+    </tr></table>
+
+    <span class="sublabel sublabel-first">Agents</span>
+    <div class="pills">
+      <a class="pill ai" href="https://copilot.microsoft.com" target="_blank"><span class="badge" style="background:#0078D4">C</span>Copilot</a>
+      <a class="pill ai" href="https://chatgpt.com" target="_blank"><span class="badge" style="background:#10A37F">C</span>ChatGPT</a>
+      <a class="pill ai" href="https://claude.ai" target="_blank"><span class="badge" style="background:#CC785C">C</span>Claude</a>
+      <a class="pill ai" href="https://www.perplexity.ai" target="_blank"><span class="badge" style="background:#20808D">P</span>Perplexity</a>
+    </div>
+
+    <span class="sublabel">Workflow automation</span>
+    <div class="pills">
+      <a class="pill ai" href="https://www.make.com" target="_blank"><span class="badge" style="background:#6D00CC">M</span>Make</a>
+      <a class="pill ai" href="https://n8n.io" target="_blank"><span class="badge" style="background:#EA4B71">n</span>n8n</a>
+      <a class="pill ai" href="https://zapier.com" target="_blank"><span class="badge" style="background:#FF4A00">Z</span>Zapier</a>
+      <a class="pill ai" href="https://powerautomate.microsoft.com" target="_blank"><span class="badge" style="background:#0066FF">PA</span>Power Automate</a>
+    </div>
+
+    <span class="sublabel">Media &amp; docs</span>
+    <div class="pills">
+      <a class="pill ai" href="https://lumalabs.ai" target="_blank"><span class="badge" style="background:#1C1C1E">L</span>Luma</a>
+      <a class="pill ai" href="https://suno.com" target="_blank"><span class="badge" style="background:#1DB954">S</span>Suno</a>
+      <a class="pill ai" href="https://www.humata.ai" target="_blank"><span class="badge" style="background:#7B5EA7">H</span>Humata</a>
+      <a class="pill ai" href="https://www.notion.so" target="_blank"><span class="badge" style="background:#1a1a1a">N</span>Notion</a>
+    </div>
+
+    <span class="sublabel">Low code / no code</span>
+    <div class="pills">
+      <a class="pill ai" href="https://powerapps.microsoft.com" target="_blank"><span class="badge" style="background:#742774">PA</span>PowerApps</a>
+      <a class="pill ai" href="https://www.glideapps.com" target="_blank"><span class="badge" style="background:#6C47FF">G</span>Glide</a>
+    </div>
+  </div></td>
+
+</tr></table>
+
+<!-- FOOTER -->
+<div class="footer">
+  <table class="footer-table"><tr>
+    <td class="footer-msg">Assess yourself &nbsp;·&nbsp; Get help &nbsp;·&nbsp; Don't fear trying… and failing &nbsp;·&nbsp; Inspire others</td>
+  </tr></table>
+</div>
+
+</body>
+</html>
