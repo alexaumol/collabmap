@@ -2,292 +2,1156 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Tools &amp; Techniques 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HITT · Search for projects</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace'],
+        },
+        colors: {
+          hitt: {
+            ink:    '#0B2545',
+            navy:   '#12395E',
+            steel:  '#3E5C76',
+            mist:   '#EEF2F7',
+            canvas: '#F5F7FA',
+            amber:  '#F2A900',
+            green:  '#1AA179',
+            red:    '#C0392B',
+          }
+        },
+        boxShadow: {
+          card: '0 1px 2px rgba(11,37,69,0.06), 0 1px 1px rgba(11,37,69,0.04)',
+          cardHover: '0 8px 20px rgba(11,37,69,0.14), 0 2px 6px rgba(11,37,69,0.08)',
+          lift: '0 18px 30px rgba(11,37,69,0.22)',
+        }
+      }
+    }
+  }
+</script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #F5F7FA; }
 
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f5f7;
-  font-size: 10px;
-  color: #1a1a2e;
-  width: 277mm;
-}
+  ::-webkit-scrollbar { height: 8px; width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C7D2DE; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #A8B7C9; }
 
-/* ── HEADER ── */
-.header {
-  background: #1e2761;
-  border-radius: 8px;
-  padding: 10px 16px;
-  margin-bottom: 8px;
-}
-.header-inner { width: 100%; border-collapse: collapse; }
-.logo { font-size: 20px; font-weight: 700; font-style: italic; color: #fff; letter-spacing: -0.5px; }
-.logo span { color: #cc2200; }
-.tagline { font-size: 8.5px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
-.header-title { font-size: 14px; font-weight: 700; color: #fff; text-align: right; }
+  .card {
+    transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease, border-color .16s ease;
+    touch-action: none;
+  }
+  .card:active { cursor: grabbing; }
+  .card.dragging {
+    opacity: 0.35;
+    transform: scale(0.97);
+  }
+  .card-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 60;
+    transform: rotate(-2deg) scale(1.03);
+    box-shadow: 0 18px 30px rgba(11,37,69,0.28);
+    opacity: 0.96;
+  }
 
-/* ── MAIN 4-COL TABLE ── */
-.main-table { width: 100%; border-collapse: separate; border-spacing: 7px 0; margin-bottom: 8px; }
-.col { width: 25%; vertical-align: top; }
+  .col-body.drag-over {
+    background: rgba(18,57,94,0.06);
+    outline: 2px dashed #12395E;
+    outline-offset: -6px;
+  }
 
-/* ── SECTION CARD ── */
-.section { background: #fff; border: 1px solid #dde0ea; border-radius: 10px; padding: 10px; }
+  .col-body.drag-invalid {
+    background: rgba(192,57,43,0.06);
+    outline: 2px dashed #C0392B;
+    outline-offset: -6px;
+  }
 
-/* ── SECTION HEAD ── */
-.sec-head { width: 100%; border-collapse: collapse; margin-bottom: 9px; }
-.sec-head td { padding-bottom: 7px; vertical-align: middle; }
-.border-comm  { border-bottom: 2px solid #1e2761; }
-.border-prod  { border-bottom: 2px solid #cc2200; }
-.border-collab{ border-bottom: 2px solid #1e7645; }
-.border-ai    { border-bottom: 2px solid #7c3ab5; }
+  @keyframes pop-in {
+    0%   { transform: scale(0.9); opacity: 0; }
+    60%  { transform: scale(1.03); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .pop-in { animation: pop-in .28s cubic-bezier(.34,1.56,.64,1); }
 
-.sec-icon {
-  display: inline-block; width: 26px; height: 26px;
-  border-radius: 6px; text-align: center; line-height: 26px;
-  font-size: 12px; font-weight: 700; vertical-align: middle;
-}
-.ic-comm  { background: #e8ebf7; color: #1e2761; }
-.ic-prod  { background: #fde8e8; color: #cc2200; }
-.ic-collab{ background: #e4f5ed; color: #1e7645; }
-.ic-ai    { background: #f2e8fb; color: #7c3ab5; }
+  @keyframes count-pulse {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  .count-pulse { animation: count-pulse .32s ease; }
 
-.sec-title { font-size: 12px; font-weight: 700; color: #1a1a2e; padding-left: 6px; }
+  @keyframes rail-flash {
+    0% { filter: brightness(1); }
+    40% { filter: brightness(1.6); }
+    100% { filter: brightness(1); }
+  }
+  .rail-flash { animation: rail-flash .5s ease; }
 
-/* ── SUBLABEL ── */
-.sublabel {
-  display: block; font-size: 8px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.5px;
-  color: #9096aa; margin-bottom: 4px; margin-top: 7px;
-}
-.sublabel-first { margin-top: 0; }
+  .tab-btn[aria-selected="true"] {
+    background: #0B2545;
+    color: white;
+    box-shadow: 0 6px 14px rgba(11,37,69,0.28);
+  }
 
-/* ── PILLS ── */
-.pills { line-height: 2; }
-a.pill {
-  display: inline-block; font-size: 9px;
-  padding: 2px 5px 2px 2px; border-radius: 4px;
-  border: 1px solid; text-decoration: none;
-  margin: 1px 1px 1px 0; vertical-align: middle;
-}
-a.pill.comm  { background: #eef0f9; border-color: #b0b8e0; color: #1e2761; }
-a.pill.prod  { background: #fef2f2; border-color: #f0b4b4; color: #991a1a; }
-a.pill.collab{ background: #edf8f2; border-color: #a8d9bc; color: #145c35; }
-a.pill.ai    { background: #f7f0fd; border-color: #c8a0e8; color: #5c2a8c; }
+  .kbd-focus:focus-visible {
+    outline: 2px solid #F2A900;
+    outline-offset: 2px;
+  }
 
-.badge {
-  display: inline-block; width: 14px; height: 14px;
-  border-radius: 3px; text-align: center; line-height: 14px;
-  font-size: 7px; font-weight: 700; color: #fff; vertical-align: middle; margin-right: 2px;
-}
+  .fade-mask {
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(to bottom, black calc(100% - 22px), transparent 100%);
+  }
 
-/* ── TECHNIQUES ── */
-.technique {
-  font-size: 9px; background: #f4f5f7; border-radius: 4px;
-  padding: 3px 7px 3px 20px; margin-bottom: 3px;
-  color: #1a1a2e; position: relative;
-}
-.technique::before {
-  content: ''; position: absolute; left: 8px; top: 50%;
-  margin-top: -2.5px; width: 5px; height: 5px;
-  border-radius: 50%; background: #cc2200;
-}
-.technique.comm::before { background: #1e2761; }
+  .toast {
+    animation: toast-in .22s ease, toast-out .22s ease 2.6s forwards;
+  }
+  @keyframes toast-in { from { transform: translateY(10px); opacity: 0;} to { transform: translateY(0); opacity: 1;} }
+  @keyframes toast-out { to { transform: translateY(10px); opacity: 0;} }
 
-/* ── CALENDAR GROUP ── */
-.cal-group { background: #f4f5f7; border-radius: 4px; padding: 4px 7px; margin-bottom: 3px; }
-.cal-table { border-collapse: collapse; width: 100%; }
-.cal-icon-td { font-size: 18px; vertical-align: middle; padding-right: 6px; width: 26px; }
-.cal-line { font-size: 9px; color: #1a1a2e; line-height: 1.7; }
+  @media (prefers-reduced-motion: reduce) {
+    .card, .pop-in, .count-pulse, .rail-flash, .toast { animation: none !important; transition: none !important; }
+  }
 
-/* ── KANBAN ── */
-.kanban-table { width: 100%; border-collapse: separate; border-spacing: 4px 0; margin-top: 5px; }
-.kb-td { width: 33.3%; vertical-align: top; }
-.kb-col { background: #f4f5f7; border-radius: 4px; padding: 4px 4px 5px; border: 1px solid #dde0ea; }
-.kb-head { font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #6b7280; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1.5px solid; }
-.kb-head.bl { border-color: #9ba8d4; }
-.kb-head.td { border-color: #e8a020; }
-.kb-head.dn { border-color: #2a9e5e; }
-.kb-card { background: #fff; border: 1px solid #dde0ea; border-radius: 3px; padding: 2px 4px; margin-bottom: 2px; font-size: 7.5px; color: #6b7280; }
-.kb-card.wip   { border-left: 2px solid #e8a020; }
-.kb-card.done-c{ border-left: 2px solid #2a9e5e; opacity: .7; }
-
-/* ── FOOTER ── */
-.footer { background: #fff; border-radius: 6px; padding: 6px 14px; border: 1px solid #dde0ea; }
-.footer-table { width: 100%; border-collapse: collapse; }
-.footer-msg { font-size: 8.5px; color: #6b7280; }
-.footer-tag { font-size: 8.5px; font-weight: 700; color: #cc2200; text-align: right; white-space: nowrap; }
+  /* ---- Modal ---- */
+  .modal-overlay { animation: overlay-in .18s ease; }
+  @keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
+  .modal-panel { animation: panel-in .22s cubic-bezier(.2,.9,.3,1.1); }
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(14px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .field-label { font-size: 11px; font-weight: 600; color: #3E5C76; letter-spacing: .01em; }
+  .field-input {
+    width: 100%; font-size: 13px; padding: 6px 8px;
+    border: 1px solid #E2E8F0; border-radius: 6px; background: #fff; color: #0B2545;
+  }
+  .field-input:disabled, .field-input[readonly] { background: #F5F7FA; color: #3E5C76; }
+  .field-input:focus { outline: 2px solid #F2A900; outline-offset: 1px; border-color: #12395E; }
+  .modal-tab[aria-selected="true"] { color: #0B2545; border-bottom-color: #0B2545; }
+  .modal-tab { border-bottom: 2px solid transparent; }
+  .grid-row:nth-child(even) { background: #FAFBFC; }
 </style>
 </head>
-<body>
+<body class="h-full font-sans text-hitt-ink antialiased">
 
-<!-- HEADER -->
-<div class="header">
-  <table class="header-inner"><tr>
-    <td>
-      <div class="tagline">Work smarter &nbsp;·&nbsp; Work better &nbsp;·&nbsp; Work happier</div>
-    </td>
-    <td style="text-align:right">
-      <div class="header-title">Tools &amp; Techniques Quick Reference</div>
-      <div class="tagline" style="text-align:right">2026</div>
-    </td>
-  </tr></table>
+<div class="h-full flex flex-col">
+
+  <!-- Top bar -->
+  <header class="border-b border-slate-200 bg-white/90 backdrop-blur px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 shrink-0">
+    <div class="flex items-center gap-3">
+      <img src="https://fhitt.org/wp-content/uploads/2020/07/cropped-F-HITT-MARCA_CMYK-scaled-3-192x192.jpg"
+           alt="HITT logo"
+           class="w-9 h-9 rounded-lg object-cover shrink-0 ring-1 ring-slate-200" />
+      <div class="leading-tight">
+        <h1 class="text-base sm:text-lg font-bold text-hitt-ink">Search for projects</h1>
+        <p class="text-[11px] text-hitt-steel">Drag a card to move it through the pipeline</p>
+      </div>
+    </div>
+
+    <div class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+      <div class="relative flex-1 max-w-md">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-hitt-steel" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="searchBox" type="text" placeholder="Type to start searching…"
+          class="kbd-focus w-full pl-9 pr-9 py-2 rounded-lg border border-slate-200 bg-hitt-canvas text-sm placeholder:text-slate-400 focus:bg-white focus:border-hitt-navy transition-colors" />
+        <button id="clearSearch" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-hitt-red">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div role="tablist" class="inline-flex bg-hitt-canvas border border-slate-200 rounded-lg p-1 self-start">
+        <button data-tab="alive" role="tab" aria-selected="true" class="tab-btn kbd-focus px-3 py-1.5 rounded-md text-xs font-semibold text-hitt-steel transition-all whitespace-nowrap">
+          Alive <span id="countAlive" class="font-mono">(0)</span>
+        </button>
+        <button data-tab="closed" role="tab" aria-selected="false" class="tab-btn kbd-focus px-3 py-1.5 rounded-md text-xs font-semibold text-hitt-steel transition-all whitespace-nowrap">
+          Closed/Cancelled <span id="countClosed" class="font-mono">(0)</span>
+        </button>
+      </div>
+
+      <button id="btnNewProject" title="Add new project" class="kbd-focus self-start sm:self-center shrink-0 w-9 h-9 rounded-lg bg-hitt-navy hover:bg-hitt-ink text-white flex items-center justify-center shadow-card hover:shadow-cardHover transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Board -->
+  <main class="flex-1 overflow-x-auto overflow-y-hidden px-3 sm:px-4 py-4">
+    <div id="board" class="h-full min-w-max grid grid-flow-col auto-cols-[264px] sm:auto-cols-[280px] gap-3"></div>
+  </main>
 </div>
 
-<!-- MAIN 4-COLUMN GRID -->
-<table class="main-table"><tr>
+<div id="toastHost" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end"></div>
 
-  <!-- COMMUNICATION -->
-  <td class="col"><div class="section">
-    <table class="sec-head border-comm"><tr>
-      <td><span class="sec-icon ic-comm">✉</span><span class="sec-title">Communication</span></td>
-    </tr></table>
+<!-- ============================ PROJECT MODAL ============================ -->
+<div id="modalOverlay" class="modal-overlay hidden fixed inset-0 z-50 bg-hitt-ink/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+  <div id="modalPanel" class="modal-panel bg-white w-full max-w-5xl max-h-[92vh] rounded-xl shadow-lift flex flex-col overflow-hidden">
 
-    <span class="sublabel sublabel-first">Technique</span>
-    <div class="technique comm">Top-down messaging — key message first</div>
-
-    <span class="sublabel">Diagramming</span>
-    <div class="pills">
-      <a class="pill comm" href="https://app.diagrams.net" target="_blank"><span class="badge" style="background:#FF8000">D</span>Draw.io</a>
-      <a class="pill comm" href="https://www.microsoft.com/en-us/microsoft-365/visio/flowchart-software" target="_blank"><span class="badge" style="background:#3955A3">V</span>Visio</a>
-      <a class="pill comm" href="https://www.lucidchart.com" target="_blank"><span class="badge" style="background:#282929">L</span>Lucidchart</a>
-      <a class="pill comm" href="https://miro.com" target="_blank"><span class="badge" style="background:#FFD02F;color:#333">M</span>Miro</a>
-      <a class="pill comm" href="https://www.tldraw.com" target="_blank"><span class="badge" style="background:#111">T</span>tldraw</a>
+    <div class="shrink-0 px-4 sm:px-5 py-3 flex items-center gap-3" style="background:#3E5C76">
+      <span id="mYear" class="font-mono font-bold text-white/90 text-sm bg-white/10 rounded px-2 py-1">2026</span>
+      <span id="mCode" class="font-mono font-bold text-white text-sm bg-white/15 rounded px-2 py-1">00000</span>
+      <h2 id="mTitle" class="flex-1 min-w-0 truncate text-white font-bold text-base sm:text-lg">Project name</h2>
+      <button id="mOpenFolder" title="Open project folder" class="hidden sm:inline-flex w-8 h-8 rounded-md bg-hitt-amber items-center justify-center hover:brightness-105 transition">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-3 text-white/85 text-xs ml-2 border-l border-white/20 pl-3">
+        <div>
+          <div class="text-[10px] uppercase tracking-wide text-white/50">Last updated</div>
+          <div id="mLastUpdated" class="font-medium">—</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wide text-white/50">By</div>
+          <div id="mLastUpdatedBy" class="font-medium">—</div>
+        </div>
+      </div>
+      <span id="mChangedBadge" class="hidden text-[11px] font-bold text-hitt-red bg-white rounded px-2 py-1 ml-1">Data has changed</span>
+      <button id="mSave" title="Save" class="w-8 h-8 rounded-md bg-hitt-green hover:brightness-110 flex items-center justify-center transition shrink-0">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </button>
+      <button id="mClose" title="Close" class="w-8 h-8 rounded-md bg-hitt-red hover:brightness-110 flex items-center justify-center transition shrink-0">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
     </div>
 
-    <span class="sublabel">Mindmapping</span>
-    <div class="pills">
-      <a class="pill comm" href="https://www.xmind.net" target="_blank"><span class="badge" style="background:#E8343C">X</span>XMind</a>
-      <a class="pill comm" href="https://www.mindmeister.com" target="_blank"><span class="badge" style="background:#FE5745">MM</span>MindMeister</a>
-      <a class="pill comm" href="https://www.freeplane.org" target="_blank"><span class="badge" style="background:#4F8DBF">F</span>Freeplane</a>
-      <a class="pill comm" href="https://gitmind.com" target="_blank"><span class="badge" style="background:#FF6B35">G</span>GitMind</a>
-      <a class="pill comm" href="https://clickup.com" target="_blank"><span class="badge" style="background:#7B68EE">C</span>ClickUp</a>
-    </div>
-  </div></td>
-
-  <!-- PRODUCTIVITY -->
-  <td class="col"><div class="section">
-    <table class="sec-head border-prod"><tr>
-      <td><span class="sec-icon ic-prod">&#9733;</span><span class="sec-title">Productivity</span></td>
-    </tr></table>
-
-    <span class="sublabel sublabel-first">Techniques</span>
-    <div class="cal-group">
-      <table class="cal-table"><tr>
-        <td class="cal-icon-td">&#128197;</td>
-        <td><div class="cal-line">Timeblocking</div><div class="cal-line">Timeboxing</div></td>
-      </tr></table>
-    </div>
-    <div class="technique">GTD + urgent/important matrix</div>
-    <div class="technique">Pomodoro</div>
-
-    <span class="sublabel">Kanban board</span>
-    <table class="kanban-table"><tr>
-      <td class="kb-td"><div class="kb-col">
-        <div class="kb-head bl">Backlog</div>
-        <div class="kb-card">Task A</div>
-        <div class="kb-card">Task B</div>
-        <div class="kb-card">Task C</div>
-      </div></td>
-      <td class="kb-td"><div class="kb-col">
-        <div class="kb-head td">To do</div>
-        <div class="kb-card wip">Task D</div>
-        <div class="kb-card wip">Task E</div>
-      </div></td>
-      <td class="kb-td"><div class="kb-col">
-        <div class="kb-head dn">Done</div>
-        <div class="kb-card done-c">Task F</div>
-        <div class="kb-card done-c">Task G</div>
-      </div></td>
-    </tr></table>
-
-    <span class="sublabel">Tools</span>
-    <div class="pills">
-      <a class="pill prod" href="https://www.minimalistphone.com" target="_blank"><span class="badge" style="background:#1a1a1a">MP</span>Minimalist Phone</a>
-      <a class="pill prod" href="https://super-productivity.com" target="_blank"><span class="badge" style="background:#19A0AC">SP</span>Superproductivity</a>
-      <a class="pill prod" href="https://www.loom.com" target="_blank"><span class="badge" style="background:#625DF5">L</span>Loom</a>
-      <a class="pill prod" href="https://www.atlassian.com/software/confluence" target="_blank"><span class="badge" style="background:#0052CC">C</span>Confluence</a>
-      <a class="pill prod" href="https://clipchamp.com" target="_blank"><span class="badge" style="background:#8661C5">CC</span>Clipchamp</a>
-    </div>
-  </div></td>
-
-  <!-- COLLABORATION -->
-  <td class="col"><div class="section">
-    <table class="sec-head border-collab"><tr>
-      <td><span class="sec-icon ic-collab">&#9783;</span><span class="sec-title">Collaboration</span></td>
-    </tr></table>
-
-    <span class="sublabel sublabel-first">Project mgmt</span>
-    <div class="pills">
-      <a class="pill collab" href="https://www.atlassian.com/software/jira" target="_blank"><span class="badge" style="background:#0052CC">J</span>Jira</a>
-      <a class="pill collab" href="https://asana.com" target="_blank"><span class="badge" style="background:#F06A6A">A</span>Asana</a>
-      <a class="pill collab" href="https://monday.com" target="_blank"><span class="badge" style="background:#FF3D57">M</span>Monday.com</a>
-      <a class="pill collab" href="https://trello.com" target="_blank"><span class="badge" style="background:#0079BF">T</span>Trello</a>
-      <a class="pill collab" href="https://tasks.office.com" target="_blank"><span class="badge" style="background:#31752F">P</span>Planner</a>
+    <div class="shrink-0 flex items-center gap-5 px-4 sm:px-5 border-b border-slate-200 bg-white">
+      <button data-mtab="general" class="modal-tab kbd-focus py-2.5 text-sm font-semibold text-hitt-steel" aria-selected="true">General</button>
+      <button data-mtab="budget" class="modal-tab kbd-focus py-2.5 text-sm font-semibold text-hitt-steel" aria-selected="false">Budget &amp; expenses</button>
     </div>
 
-    <span class="sublabel">Chat &amp; docs</span>
-    <div class="pills">
-      <a class="pill collab" href="https://slack.com" target="_blank"><span class="badge" style="background:#4A154B">S</span>Slack</a>
-      <a class="pill collab" href="https://www.rocket.chat" target="_blank"><span class="badge" style="background:#F5455C">R</span>Rocket.chat</a>
-      <a class="pill collab" href="https://mattermost.com" target="_blank"><span class="badge" style="background:#0058CC">M</span>Mattermost</a>
-      <a class="pill collab" href="https://www.microsoft.com/en-us/microsoft-teams/group-chat-software" target="_blank"><span class="badge" style="background:#6264A7">T</span>MS Teams</a>
+    <div class="flex-1 overflow-y-auto bg-hitt-canvas">
+
+      <div id="paneGeneral" class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 sm:p-5">
+        <div class="flex flex-col gap-4">
+
+          <section class="bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden">
+            <div class="bg-hitt-steel px-3 py-1.5"><h3 class="text-white text-xs font-bold tracking-wide">GENERAL PROJECT INFO</h3></div>
+            <div class="p-3 grid grid-cols-2 gap-3">
+              <div>
+                <label class="field-label">Status <span class="text-hitt-red">*</span></label>
+                <select id="mStatus" class="field-input mt-1"></select>
+              </div>
+              <div>
+                <label class="field-label">Project type</label>
+                <select id="mProjectType" class="field-input mt-1">
+                  <option>HiTT_Consulting</option>
+                  <option>HiTT_Grant</option>
+                  <option>OSM_Consulting</option>
+                  <option>Internal</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Biotech spectrum</label>
+                <select id="mBioSpectrum" class="field-input mt-1">
+                  <option>Big pharma</option>
+                  <option>Biotech</option>
+                  <option>Medtech</option>
+                  <option>Academia</option>
+                  <option>Public sector</option>
+                  <option>N/A</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Entity</label>
+                <select id="mEntity" class="field-input mt-1">
+                  <option>Consulting Services</option>
+                  <option>Market Access</option>
+                  <option>Research Division</option>
+                  <option>Corporate Ops</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section class="bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden">
+            <div class="bg-hitt-steel px-3 py-1.5"><h3 class="text-white text-xs font-bold tracking-wide">BUSINESS PARTNER</h3></div>
+            <div class="p-3 space-y-3">
+              <div>
+                <label class="field-label italic text-hitt-red">* Buss partner running name</label>
+                <input id="mBPRunning" type="text" class="field-input mt-1" placeholder="—" />
+              </div>
+              <div>
+                <label class="field-label">Contracting Business Partner</label>
+                <div class="mt-1 flex items-center gap-1.5">
+                  <input id="mBPContracting" type="text" class="field-input flex-1 bg-hitt-amber/10 border-hitt-amber/40 font-medium" />
+                  <button title="Search" class="w-8 h-8 shrink-0 rounded-md border border-slate-200 bg-white hover:bg-hitt-mist flex items-center justify-center">
+                    <svg class="w-4 h-4 text-hitt-steel" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                  </button>
+                  <button title="Add new" class="w-8 h-8 shrink-0 rounded-md border border-hitt-navy text-hitt-navy font-bold hover:bg-hitt-navy hover:text-white flex items-center justify-center">+</button>
+                </div>
+              </div>
+              <div>
+                <label class="field-label">Business Partner to invoice</label>
+                <select id="mBPInvoice" class="field-input mt-1"></select>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <section class="bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden">
+            <div class="bg-hitt-steel px-3 py-1.5"><h3 class="text-white text-xs font-bold tracking-wide">PROJECT DELIVERABLES</h3></div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs">
+                <thead>
+                  <tr class="bg-hitt-mist text-hitt-steel text-left">
+                    <th class="px-2.5 py-1.5 font-semibold w-32">Expected</th>
+                    <th class="px-2.5 py-1.5 font-semibold w-32">Effective</th>
+                    <th class="px-2.5 py-1.5 font-semibold">Deliverable name</th>
+                  </tr>
+                </thead>
+                <tbody id="mDeliverables"></tbody>
+              </table>
+            </div>
+            <button id="mAddDeliverable" class="w-full text-left px-2.5 py-1.5 text-[11px] font-semibold text-hitt-navy hover:bg-hitt-mist border-t border-slate-100">+ Add deliverable</button>
+          </section>
+
+          <section class="bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden flex-1 flex flex-col min-h-[220px]">
+            <div class="px-3 py-2 border-b border-slate-100 flex items-center gap-2">
+              <input id="mNewNote" type="text" placeholder="Type here for a new note" class="field-input flex-1 italic text-hitt-steel" />
+              <button id="mAddNote" class="shrink-0 bg-hitt-navy text-white text-[11px] font-semibold px-3 py-2 rounded-md hover:bg-hitt-ink transition">Add note</button>
+            </div>
+            <div class="bg-hitt-steel px-3 py-1.5"><h3 class="text-white text-xs font-bold tracking-wide">NOTES</h3></div>
+            <div id="mNotesList" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+          </section>
+        </div>
+      </div>
+
+      <div id="paneBudget" class="hidden p-4 sm:p-5 flex flex-col gap-4">
+        <section class="bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden">
+          <div class="bg-hitt-steel px-3 py-1.5 flex items-center justify-between">
+            <h3 class="text-white text-xs font-bold tracking-wide">PROJECT QUOTATIONS</h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="bg-hitt-mist text-hitt-steel text-left">
+                  <th class="px-2.5 py-1.5 font-semibold">Date</th>
+                  <th class="px-2.5 py-1.5 font-semibold">Details</th>
+                  <th class="px-2.5 py-1.5 font-semibold text-right">Amount quoted</th>
+                  <th class="px-2.5 py-1.5 font-semibold text-right">Expenses</th>
+                  <th class="px-2.5 py-1.5 font-semibold text-right">Discount neg.</th>
+                  <th class="px-2.5 py-1.5 font-semibold text-right">Final quotation</th>
+                  <th class="px-2.5 py-1.5 font-semibold">User</th>
+                </tr>
+              </thead>
+              <tbody id="mQuotations"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-lg border border-slate-200 shadow-card overflow-hidden">
+          <div class="bg-hitt-steel px-3 py-1.5"><h3 class="text-white text-xs font-bold tracking-wide">EXPENSES RECORDS</h3></div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="bg-hitt-mist text-hitt-steel text-left">
+                  <th class="px-2.5 py-1.5 font-semibold">Date</th>
+                  <th class="px-2.5 py-1.5 font-semibold">Category</th>
+                  <th class="px-2.5 py-1.5 font-semibold">Concept</th>
+                  <th class="px-2.5 py-1.5 font-semibold">Username</th>
+                  <th class="px-2.5 py-1.5 font-semibold text-center">Invoiceable</th>
+                  <th class="px-2.5 py-1.5 font-semibold text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="mExpenses"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-lg border border-slate-200 shadow-card px-3 py-3 flex items-center gap-2">
+          <input id="mNotInvoiceable" type="checkbox" class="w-4 h-4 accent-hitt-navy" />
+          <label for="mNotInvoiceable" class="text-xs font-medium text-hitt-ink">Check if the project is NOT invoiceable</label>
+        </section>
+      </div>
+
     </div>
-
-    <span class="sublabel">Platforms</span>
-    <div class="pills">
-      <a class="pill collab" href="https://nextcloud.com" target="_blank"><span class="badge" style="background:#0082C9">N</span>Nextcloud</a>
-      <a class="pill collab" href="https://github.com" target="_blank"><span class="badge" style="background:#24292E">GH</span>GitHub</a>
-      <a class="pill collab" href="https://www.atlassian.com/software/confluence" target="_blank"><span class="badge" style="background:#0052CC">C</span>Confluence</a>
-      <a class="pill collab" href="https://resourceguruapp.com" target="_blank"><span class="badge" style="background:#3CBC8D">RG</span>ResourceGuru</a>
-    </div>
-  </div></td>
-
-  <!-- AI TOOLS -->
-  <td class="col"><div class="section">
-    <table class="sec-head border-ai"><tr>
-      <td><span class="sec-icon ic-ai">&#9670;</span><span class="sec-title">AI tools</span></td>
-    </tr></table>
-
-    <span class="sublabel sublabel-first">Agents</span>
-    <div class="pills">
-      <a class="pill ai" href="https://copilot.microsoft.com" target="_blank"><span class="badge" style="background:#0078D4">C</span>Copilot</a>
-      <a class="pill ai" href="https://chatgpt.com" target="_blank"><span class="badge" style="background:#10A37F">C</span>ChatGPT</a>
-      <a class="pill ai" href="https://claude.ai" target="_blank"><span class="badge" style="background:#CC785C">C</span>Claude</a>
-      <a class="pill ai" href="https://www.perplexity.ai" target="_blank"><span class="badge" style="background:#20808D">P</span>Perplexity</a>
-    </div>
-
-    <span class="sublabel">Workflow automation</span>
-    <div class="pills">
-      <a class="pill ai" href="https://www.make.com" target="_blank"><span class="badge" style="background:#6D00CC">M</span>Make</a>
-      <a class="pill ai" href="https://n8n.io" target="_blank"><span class="badge" style="background:#EA4B71">n</span>n8n</a>
-      <a class="pill ai" href="https://zapier.com" target="_blank"><span class="badge" style="background:#FF4A00">Z</span>Zapier</a>
-      <a class="pill ai" href="https://powerautomate.microsoft.com" target="_blank"><span class="badge" style="background:#0066FF">PA</span>Power Automate</a>
-    </div>
-
-    <span class="sublabel">Media &amp; docs</span>
-    <div class="pills">
-      <a class="pill ai" href="https://lumalabs.ai" target="_blank"><span class="badge" style="background:#1C1C1E">L</span>Luma</a>
-      <a class="pill ai" href="https://suno.com" target="_blank"><span class="badge" style="background:#1DB954">S</span>Suno</a>
-      <a class="pill ai" href="https://www.humata.ai" target="_blank"><span class="badge" style="background:#7B5EA7">H</span>Humata</a>
-      <a class="pill ai" href="https://www.notion.so" target="_blank"><span class="badge" style="background:#1a1a1a">N</span>Notion</a>
-    </div>
-
-    <span class="sublabel">Low code / no code</span>
-    <div class="pills">
-      <a class="pill ai" href="https://powerapps.microsoft.com" target="_blank"><span class="badge" style="background:#742774">PA</span>PowerApps</a>
-      <a class="pill ai" href="https://www.glideapps.com" target="_blank"><span class="badge" style="background:#6C47FF">G</span>Glide</a>
-    </div>
-  </div></td>
-
-</tr></table>
-
-<!-- FOOTER -->
-<div class="footer">
-  <table class="footer-table"><tr>
-    <td class="footer-msg">Assess yourself &nbsp;·&nbsp; Get help &nbsp;·&nbsp; Don't fear trying… and failing &nbsp;·&nbsp; Inspire others</td>
-  </tr></table>
+  </div>
 </div>
 
+<!-- ============================ NEW PROJECT MODAL ============================ -->
+<div id="newProjectOverlay" class="modal-overlay hidden fixed inset-0 z-50 bg-hitt-ink/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+  <div class="modal-panel bg-white w-full max-w-lg max-h-[92vh] rounded-xl shadow-lift flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <div class="shrink-0 bg-hitt-mist px-4 sm:px-5 py-3 flex items-start justify-between gap-3 border-b border-slate-200">
+      <div class="flex-1 min-w-0">
+        <input id="npName" type="text" value="Type here the name…"
+          class="w-full bg-transparent text-hitt-steel italic text-sm font-medium outline-none border-b border-dashed border-transparent focus:border-hitt-navy focus:text-hitt-ink focus:not-italic" />
+        <div class="mt-1 flex items-center gap-2">
+          <span class="font-mono font-bold text-hitt-ink text-sm">2026</span>
+          <span class="text-hitt-steel">–</span>
+          <span id="npNumber" class="font-mono font-bold text-hitt-ink text-sm">26084</span>
+          <span id="npSavedBadge" class="ml-auto text-[11px] font-bold text-hitt-green italic">Saved</span>
+        </div>
+      </div>
+      <button id="npClose" title="Close" class="w-8 h-8 shrink-0 rounded-md hover:bg-slate-200 flex items-center justify-center transition">
+        <svg class="w-4 h-4 text-hitt-steel" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="field-label">Entity <span class="text-hitt-red">*</span></label>
+          <select id="npEntity" class="field-input mt-1">
+            <option value="">—</option>
+            <option>Consulting Services</option>
+            <option>Market Access</option>
+            <option>Research Division</option>
+            <option>Corporate Ops</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Biotech spectrum</label>
+          <select id="npBioSpectrum" class="field-input mt-1">
+            <option value="">—</option>
+            <option>Big pharma</option>
+            <option>Biotech</option>
+            <option>Medtech</option>
+            <option>Academia</option>
+            <option>Public sector</option>
+            <option>N/A</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Project type</label>
+          <select id="npProjectType" class="field-input mt-1">
+            <option value="">—</option>
+            <option>HiTT_Consulting</option>
+            <option>HiTT_Grant</option>
+            <option>OSM_Consulting</option>
+            <option>Internal</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="field-label">Status <span class="text-hitt-red">*</span></label>
+          <select id="npStatus" class="field-input mt-1"></select>
+        </div>
+        <div>
+          <label class="field-label">Project owner <span class="text-hitt-red">*</span></label>
+          <select id="npOwner" class="field-input mt-1">
+            <option value="">—</option>
+            <option>jmarti</option>
+            <option>alopez</option>
+            <option>cferre</option>
+            <option>npons</option>
+            <option>rvidal</option>
+            <option>tsole</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label italic">Buss partner running name</label>
+        <input id="npBPRunning" type="text" class="field-input mt-1" />
+      </div>
+      <div>
+        <label class="field-label">Contracting Business Partner <span class="text-hitt-red">*</span></label>
+        <div class="mt-1 flex items-center gap-1.5">
+          <input id="npBPContracting" type="text" class="field-input flex-1" placeholder="Search or type a business partner…" />
+          <button title="Search" class="w-8 h-8 shrink-0 rounded-md border border-slate-200 bg-white hover:bg-hitt-mist flex items-center justify-center">
+            <svg class="w-4 h-4 text-hitt-steel" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </button>
+          <button title="Add new" class="w-8 h-8 shrink-0 rounded-md border border-hitt-navy text-hitt-navy font-bold hover:bg-hitt-navy hover:text-white flex items-center justify-center">+</button>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Business Partner to invoice</label>
+        <select id="npBPInvoice" class="field-input mt-1">
+          <option value="">—</option>
+        </select>
+      </div>
+
+      <div class="pt-1">
+        <div class="h-px bg-hitt-ink mb-3"></div>
+        <div class="bg-hitt-mist rounded-md px-3 py-1.5 text-center">
+          <h3 class="text-xs font-bold text-hitt-steel tracking-wide">INITIAL QUOTATION DETAILS</h3>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="field-label">Quotation date</label>
+          <input id="npQuotationDate" type="date" class="field-input mt-1" />
+        </div>
+        <div>
+          <label class="field-label">Expenses</label>
+          <input id="npExpenses" type="number" step="0.01" placeholder="0.00" class="field-input mt-1 text-right" />
+        </div>
+        <div>
+          <label class="field-label">Amount quoted</label>
+          <input id="npAmountQuoted" type="number" step="0.01" placeholder="0.00" class="field-input mt-1 text-right" />
+        </div>
+        <div>
+          <label class="field-label">Discount negotiation</label>
+          <input id="npDiscountNeg" type="number" step="0.01" placeholder="0.00" class="field-input mt-1 text-right" />
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Details</label>
+        <textarea id="npDetails" rows="3" class="field-input mt-1 resize-none"></textarea>
+      </div>
+      <div>
+        <label class="field-label">Final quotation/budget</label>
+        <input id="npFinalQuot" type="text" readonly class="field-input mt-1 text-right font-bold bg-hitt-mist" value="0.00" />
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="shrink-0 border-t border-slate-200 px-4 sm:px-5 py-3 flex items-center justify-center gap-3">
+      <button id="npSave" title="Save" class="w-10 h-10 rounded-lg bg-hitt-green hover:brightness-110 flex items-center justify-center transition shadow-card">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </button>
+      <button id="npCancel" title="Cancel" class="w-10 h-10 rounded-lg bg-hitt-red hover:brightness-110 flex items-center justify-center transition shadow-card">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================= DATA MODEL ============================= */
+const STAGES = [
+  { id: 'lead',      label: 'Lead',      set: 'alive',  color: '#3E5C76', bar: 'bg-hitt-steel',  icon: iconLead() },
+  { id: 'oferta',    label: 'Oferta',    set: 'alive',  color: '#F2A900', bar: 'bg-hitt-amber',  icon: iconRFP() },
+  { id: 'guanyat',   label: 'Guanyat',   set: 'alive',  color: '#1AA179', bar: 'bg-hitt-green',  icon: iconWon() },
+  { id: 'wip',       label: 'WIP',       set: 'alive',  color: '#12395E', bar: 'bg-hitt-navy',   icon: iconWIP() },
+  { id: 'delivered', label: 'Delivered', set: 'alive',  color: '#0B2545', bar: 'bg-hitt-ink',    icon: iconDelivered() },
+  { id: 'closed',    label: 'Closed',    set: 'closed', color: '#5B6B7C', bar: 'bg-slate-500',   icon: iconClosed() },
+  { id: 'cancelled', label: 'Cancelled', set: 'closed', color: '#C0392B', bar: 'bg-hitt-red',    icon: iconCancelled() },
+];
+const STAGE_BY_ID = Object.fromEntries(STAGES.map(s => [s.id, s]));
+
+// Fictional project names — codes/numbering follow the real system's convention, names are made up
+const SEED = {
+  lead: ["00000-Leads","23079-Metabolic Pathway Review","24059-Compound Synergy Study","24091-Neural Signal Mapping","24106-Rare Genetic Disorder Assessment","24144-Palliative Care Value Study","25002-Market Access Strategy","25007-Formulation Refresh","25013-Oncology Target Screening","25014-Resistance Mechanism Study","25017-Government Affairs Panel","25022-Lysosomal Disorder Program","25043-Rare Disease Patient Survey","25044-Therapy Adherence Study","25075-Payer Perspectives Workshop","25085-Market Access Roundtable","25093-Advisory Board Setup","25104-Connected Devices Feasibility","25108-Multi-Site ADC Trial Support","25148-Tender Response Draft","26018-Innovation Grant Evaluation"],
+  oferta: ["24036-Cardiovascular Budget Model","24052-Antibody Uptake Study","24100-Digital Health Framework","24160-Cost Calculator Tool","25004-HTA Implementation Support","25029-Regulatory Submission Support","25040-Patient Involvement Design","25141-Respiratory Trial Support","26010-Immunology Pipeline Review","26013-Lipid Therapy Analysis","26015-Resistance Pathway Study","26020-Care Pathway Support","26022-Biopsy Device Evaluation","26026-Disease Modeling Project","26036-Academic Research Collaboration","26040-Cell Biology Study","26041-Prenatal Device Study","26046-Training Program Design","26065-Inhaler Device Modeling","26073-Hematology Study Support","26081-Pricing Strategy Review"],
+  guanyat: ["24064-Evidence Panel Consultancy","24082-Generic Budget Impact","25051-Alternative Contracting Model","25117-Durability Narrative Study","25118-Consensus Statement Project","25144-Regional Network Initiative","25159-Market Landscape Study","25161-Disease Progression Paper","26017-Global Policy Forum","26023-Oncology Care Pathway","26027-Policy Futures Forum","26030-International Conference Support","26044-Polymer Coating Study","26048-Consulting Engagement","26049-Product Launch Support","26051-Global Marketing Meeting","26054-Market Access Meeting","26057-HTA Reference Guide","26058-Pediatric Innovation Summit","26059-Rare Disease Study","26060-Access Revolution Project","26061-Essential Medicines Review"],
+  wip: ["00012-Internal Billing Cycle A","00013-Internal Billing Cycle B","00023-Internal Billing Cycle C","24017-Medical Device Evaluation","24020-Clinical Outcomes Review","24092-Research Grant Proposal","24127-Product Comparison Study","25001-Clinical Trial Publication","25016-University HTA Collaboration","25026-Diagnostics Market Access","25028-Patient Education Program","25030-Trial Development Support","25066-Regional Health Plan Review","25077-Health System Priorities","25096-EU Research Grant","25133-Rare Disease Access Study","25137-Doctoral Research Support","25140-New Paradigm Assessment","25145-Oncology Coverage Study","25151-Diagnostic Dossier Analysis","25152-Product Registration Support","25156-International Conference Prep"],
+  delivered: ["11111-General Expenses","23022-Strategic Planning Study","24023-Biotech Training Program","24034-Respiratory Disease Study","24060-Internal Meetings Log","24075-Precision Medicine Review","24094-Product Transition Study","24112-Women's Health Initiative","24116-Needs Assessment Project","24124-Patient Academy Program","24149-Formulation Access Study","24157-Development Paradigm Paper","25009-Market Access Evaluation","25015-Chronic Disease Study","25033-Rare Disease Research","25036-Patient Community Event","25052-Alternative Contracting Model B","25054-Device Potential Assessment","25055-Consulting Engagement B","25063-Regional Market Study","25064-Innovation Program Review","25065-Regional Access Meeting"],
+  closed: ["23011-Legacy Pricing Study","23044-Rare Disease Toolkit","24003-Payer Landscape Review","24019-Value Dossier Refresh","24071-Clinical Assessment Prep","25008-Access Roadmap Renewal"],
+  cancelled: ["24006-Budget Freeze Pilot","24088-Molecule Review Discontinued","25011-Tender Withdrawn","25049-Scope Change Cancellation"]
+};
+
+let PROJECTS = [];
+let idCounter = 1;
+STAGES.forEach(stage => {
+  (SEED[stage.id] || []).forEach(name => {
+    PROJECTS.push({ id: idCounter++, code: name.split('-')[0], name: name.split('-').slice(1).join('-') || name, stage: stage.id });
+  });
+});
+
+let currentTab = 'alive';
+let searchTerm = '';
+let dragState = null; // { id, fromStage, ghostEl, offsetX, offsetY }
+let activeProjectId = null;
+
+/* -------- Mock enrichment data for the detail modal (deterministic per id) -------- */
+const BUSINESS_PARTNERS = ["Aurivex Pharma AG","Nortelia Life Sciences","Halberon Bio","Meridex Pharmaceuticals","Cascadia Therapeutics","Vireon Biotech","Oakstone Health Group","Solvane Medical AG","Petralux Pharma","Kaledion Therapeutics","Ambervale Biopharma","Northgate Sciences","Trelmark International","Ferronix Biologics","Calderwood Pharma","Vantis Health S.A."];
+const USERS = ["jmarti","alopez","cferre","npons","rvidal","tsole"];
+const PROJECT_TYPES = ["HiTT_Consulting","HiTT_Grant","OSM_Consulting","Internal"];
+const BIOSPECTRUMS = ["Big pharma","Biotech","Medtech","Academia","Public sector","N/A"];
+const ENTITIES = ["Consulting Services","Market Access","Research Division","Corporate Ops"];
+const NOTE_AUTHORS = ["jmarti","alopez","cferre"];
+
+function seededRand(seed){
+  let x = Math.sin(seed * 999) * 10000;
+  return x - Math.floor(x);
+}
+function pick(arr, seed){ return arr[Math.floor(seededRand(seed) * arr.length)]; }
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+function addDays(base, days){ const d = new Date(base); d.setDate(d.getDate()+days); return d; }
+function money(n){ return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+function getProjectDetail(p){
+  const seed = p.id;
+  const year = 2000 + parseInt(p.code.slice(0,2), 10);
+  const bp = pick(BUSINESS_PARTNERS, seed);
+  const quoted = 8000 + Math.floor(seededRand(seed+1) * 60000);
+  const discount = Math.floor(seededRand(seed+2) * 8) * 100;
+  const expenses = Math.floor(seededRand(seed+3) * 3000);
+  const finalQ = quoted - discount + expenses;
+  const createdOffset = -Math.floor(seededRand(seed+4) * 300);
+  const created = addDays(new Date('2026-07-28'), createdOffset);
+
+  const stage = STAGE_BY_ID[p.stage];
+  const isAdvanced = ['wip','delivered','closed'].includes(p.stage);
+  const isDone = ['delivered','closed'].includes(p.stage);
+
+  const numDeliverables = 1 + Math.floor(seededRand(seed+5) * 3);
+  const deliverables = Array.from({length: numDeliverables}).map((_, i) => {
+    const expOffset = 10 + i*20 + Math.floor(seededRand(seed+10+i)*15);
+    const hasEffective = isDone && seededRand(seed+20+i) > 0.35;
+    return {
+      expected: fmtDate(addDays(created, expOffset)),
+      effective: hasEffective ? fmtDate(addDays(created, expOffset + Math.floor(seededRand(seed+30+i)*6))) : '',
+      name: pick(["Final report","Kick-off deck","Interim analysis","Dossier draft v1","Executive summary","Data package","Client presentation"], seed+40+i)
+    };
+  });
+
+  const numNotes = Math.floor(seededRand(seed+6) * 3);
+  const notes = Array.from({length: numNotes}).map((_, i) => ({
+    author: pick(NOTE_AUTHORS, seed+50+i),
+    date: fmtDate(addDays(created, Math.floor(seededRand(seed+60+i)*40))),
+    text: pick([
+      "Kick-off call scheduled with the client for next week.",
+      "Waiting on signed PO before starting delivery.",
+      "Scope slightly revised after payer feedback.",
+      "Budget approved by finance, proceeding as planned.",
+      "Client requested a short extension on the deadline.",
+      "Internal review completed, minor comments addressed."
+    ], seed+70+i)
+  }));
+
+  const numQuotations = isAdvanced ? 1 + Math.floor(seededRand(seed+7)*2) : (seededRand(seed+7) > 0.5 ? 1 : 0);
+  const quotations = Array.from({length: numQuotations}).map((_, i) => {
+    const q = quoted - i*1500;
+    const d = discount;
+    const e = expenses;
+    return {
+      date: fmtDate(addDays(created, 5 + i*15)),
+      details: i === 0 ? "Initial quotation" : "Revised quotation",
+      amountQuoted: q, expenses: e, discount: d, finalQuotation: q - d + e,
+      user: pick(USERS, seed+80+i)
+    };
+  });
+
+  const numExpenses = isAdvanced ? Math.floor(seededRand(seed+8) * 4) : 0;
+  const expenseCategories = ["Travel","Subsistence","Materials","Subcontracting","Software licence"];
+  const expenseRecords = Array.from({length: numExpenses}).map((_, i) => ({
+    date: fmtDate(addDays(created, 20 + i*12)),
+    category: pick(expenseCategories, seed+90+i),
+    concept: pick(["Client visit","Conference travel","Data license","External consultant","Printing & materials"], seed+100+i),
+    username: pick(USERS, seed+110+i),
+    invoiceable: seededRand(seed+120+i) > 0.3,
+    amount: 40 + Math.floor(seededRand(seed+130+i) * 900)
+  }));
+
+  return {
+    year, bp,
+    bpRunning: bp.split(' ').slice(0,2).join(' '),
+    projectType: pick(PROJECT_TYPES, seed+9),
+    bioSpectrum: pick(BIOSPECTRUMS, seed+11),
+    entity: pick(ENTITIES, seed+12),
+    lastUpdated: fmtDate(addDays(new Date('2026-07-28'), -Math.floor(seededRand(seed+13)*20))),
+    lastUpdatedBy: pick(USERS, seed+14),
+    notInvoiceable: seededRand(seed+15) > 0.85,
+    deliverables, notes, quotations, expenseRecords
+  };
+}
+
+/* ============================== ICONS ================================= */
+function iconLead(){ return `<svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16l-6 8v6l-4 2v-8L4 4z"/></svg>`; }
+function iconRFP(){ return `<svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path stroke-linecap="round" d="M8 8h8M8 12h8M8 16h5"/></svg>`; }
+function iconWon(){ return `<svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4z"/></svg>`; }
+function iconWIP(){ return `<svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.3 4.3a2 2 0 013.4 0l.4.7a2 2 0 001.6 1l.8-.1a2 2 0 012.2 2.2l-.1.8a2 2 0 001 1.6l.7.4a2 2 0 010 3.4l-.7.4a2 2 0 00-1 1.6l.1.8a2 2 0 01-2.2 2.2l-.8-.1a2 2 0 00-1.6 1l-.4.7a2 2 0 01-3.4 0l-.4-.7a2 2 0 00-1.6-1l-.8.1a2 2 0 01-2.2-2.2l.1-.8a2 2 0 00-1-1.6l-.7-.4a2 2 0 010-3.4l.7-.4a2 2 0 001-1.6l-.1-.8a2 2 0 012.2-2.2l.8.1a2 2 0 001.6-1l.4-.7z"/><circle cx="12" cy="12" r="3"/></svg>`; }
+function iconDelivered(){ return `<svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9-5 9 5-9 5-9-5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 8v8l9 5 9-5V8M12 13v8"/></svg>`; }
+function iconClosed(){ return `<svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="1.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 10V7a4 4 0 118 0v3"/></svg>`; }
+function iconCancelled(){ return `<svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg>`; }
+
+/* ============================== SOUND ================================== */
+const SND_PICKUP = new Audio('https://cdn.freesound.org/previews/242/242501_4284968-lq.mp3');
+const SND_DROP   = new Audio('https://cdn.freesound.org/previews/256/256113_3263906-lq.mp3');
+[SND_PICKUP, SND_DROP].forEach(a => { a.volume = 0.35; a.preload = 'auto'; });
+function playSafe(a){ try { a.currentTime = 0; a.play().catch(()=>{}); } catch(e){} }
+
+/* ============================== TOASTS ================================= */
+function toast(msg, tone='navy'){
+  const host = document.getElementById('toastHost');
+  const colors = { navy: 'bg-hitt-ink', green: 'bg-hitt-green', red: 'bg-hitt-red' };
+  const el = document.createElement('div');
+  el.className = `toast ${colors[tone]||colors.navy} text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lift flex items-center gap-2`;
+  el.innerHTML = msg;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+/* ============================== RENDER ================================= */
+function matchesSearch(p){
+  if (!searchTerm) return true;
+  const t = searchTerm.toLowerCase();
+  return p.code.toLowerCase().includes(t) || p.name.toLowerCase().includes(t);
+}
+
+function stageCount(stageId){
+  return PROJECTS.filter(p => p.stage === stageId && matchesSearch(p)).length;
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  const visibleStages = STAGES.filter(s => s.set === currentTab);
+
+  visibleStages.forEach(stage => {
+    const items = PROJECTS.filter(p => p.stage === stage.id && matchesSearch(p))
+                           .sort((a,b) => (a.code+a.name).localeCompare(b.code+b.name));
+
+    const col = document.createElement('div');
+    col.className = 'flex flex-col bg-white rounded-xl border border-slate-200 shadow-card h-full overflow-hidden';
+    col.dataset.stage = stage.id;
+
+    col.innerHTML = `
+      <div class="shrink-0 px-3 pt-3 pb-2.5 border-b border-slate-100" style="border-top:3px solid ${stage.color}">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="w-7 h-7 rounded-md flex items-center justify-center shrink-0 text-white" style="background:${stage.color}">${stage.icon}</span>
+            <h2 class="font-semibold text-sm text-hitt-ink truncate">${stage.label}</h2>
+          </div>
+          <span data-count-for="${stage.id}" class="font-mono text-xs font-bold text-white rounded-full px-2 py-0.5 shrink-0" style="background:${stage.color}">${items.length}</span>
+        </div>
+      </div>
+      <div class="col-body flex-1 overflow-y-auto px-2 py-2 space-y-2 fade-mask" data-stage="${stage.id}" style="min-height:80px"></div>
+    `;
+
+    const body = col.querySelector('.col-body');
+    if (items.length === 0) {
+      body.innerHTML = `<div class="text-xs text-slate-400 text-center py-8 select-none">No projects${searchTerm ? ' match your search' : ' here yet'}</div>`;
+    } else {
+      items.forEach(p => body.appendChild(renderCard(p, stage)));
+    }
+
+    attachDropZone(body);
+    board.appendChild(col);
+  });
+}
+
+function renderCard(p, stage){
+  const card = document.createElement('div');
+  card.className = 'card pop-in group bg-white border border-slate-200 hover:border-slate-300 rounded-lg shadow-card hover:shadow-cardHover cursor-grab select-none overflow-hidden';
+  card.draggable = true;
+  card.dataset.id = p.id;
+  card.dataset.stage = stage.id;
+  card.tabIndex = 0;
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-label', `${p.code} ${p.name}, stage ${stage.label}. Press arrow keys to move.`);
+
+  card.innerHTML = `
+    <div class="flex">
+      <div class="w-1 shrink-0" style="background:${stage.color}" data-rail></div>
+      <div class="flex-1 min-w-0 px-2.5 py-2">
+        <div class="flex items-start justify-between gap-1.5">
+          <span class="font-mono text-[10px] font-bold text-hitt-steel tracking-tight">${p.code}</span>
+          <svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"/></svg>
+        </div>
+        <p class="text-[13px] leading-snug font-medium text-hitt-ink mt-0.5 truncate" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</p>
+      </div>
+    </div>
+  `;
+
+  // Drag events (desktop)
+  card.addEventListener('dragstart', (e) => {
+    dragState = { id: p.id, fromStage: p.stage };
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(p.id));
+    requestAnimationFrame(() => card.classList.add('dragging'));
+    playSafe(SND_PICKUP);
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    dragState = null;
+    document.querySelectorAll('.col-body').forEach(b => b.classList.remove('drag-over','drag-invalid'));
+  });
+
+  card.addEventListener('dblclick', () => openProjectModal(p.id));
+
+  // Keyboard accessibility: arrow keys move card between adjacent stages
+  card.addEventListener('keydown', (e) => {
+    const stagesInSet = STAGES.filter(s => s.set === currentTab);
+    const idx = stagesInSet.findIndex(s => s.id === p.stage);
+    if (e.key === 'ArrowRight' && idx < stagesInSet.length - 1) {
+      e.preventDefault();
+      moveProject(p.id, stagesInSet[idx+1].id);
+    } else if (e.key === 'ArrowLeft' && idx > 0) {
+      e.preventDefault();
+      moveProject(p.id, stagesInSet[idx-1].id);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      openProjectModal(p.id);
+    }
+  });
+
+  return card;
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function attachDropZone(body){
+  body.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    body.classList.add('drag-over');
+  });
+  body.addEventListener('dragleave', () => {
+    body.classList.remove('drag-over');
+  });
+  body.addEventListener('drop', (e) => {
+    e.preventDefault();
+    body.classList.remove('drag-over');
+    const id = Number(e.dataTransfer.getData('text/plain'));
+    const targetStage = body.dataset.stage;
+    if (id) moveProject(id, targetStage);
+  });
+}
+
+function moveProject(id, targetStageId){
+  const p = PROJECTS.find(x => x.id === id);
+  if (!p || p.stage === targetStageId) return;
+  const from = STAGE_BY_ID[p.stage];
+  const to = STAGE_BY_ID[targetStageId];
+  p.stage = targetStageId;
+
+  renderBoard();
+  playSafe(SND_DROP);
+
+  // pulse the destination count + flash the moved card rail
+  const countEl = document.querySelector(`[data-count-for="${targetStageId}"]`);
+  if (countEl){ countEl.classList.remove('count-pulse'); void countEl.offsetWidth; countEl.classList.add('count-pulse'); }
+  const movedCard = document.querySelector(`.card[data-id="${id}"]`);
+  if (movedCard){
+    const rail = movedCard.querySelector('[data-rail]');
+    if (rail){ rail.classList.remove('rail-flash'); void rail.offsetWidth; rail.classList.add('rail-flash'); }
+    movedCard.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  updateTabCounts();
+  toast(`<span class="font-mono text-xs opacity-80">${p.code}</span> moved ${from.label} → <b>${to.label}</b>`, to.set === 'closed' && to.id==='cancelled' ? 'red' : 'green');
+}
+
+function updateTabCounts(){
+  const aliveIds = STAGES.filter(s => s.set === 'alive').map(s => s.id);
+  const closedIds = STAGES.filter(s => s.set === 'closed').map(s => s.id);
+  const alive = PROJECTS.filter(p => aliveIds.includes(p.stage) && matchesSearch(p)).length;
+  const closed = PROJECTS.filter(p => closedIds.includes(p.stage) && matchesSearch(p)).length;
+  document.getElementById('countAlive').textContent = `(${alive})`;
+  document.getElementById('countClosed').textContent = `(${closed})`;
+}
+
+/* ============================== MODAL =================================== */
+const modalOverlay = document.getElementById('modalOverlay');
+const modalPanel = document.getElementById('modalPanel');
+
+function openProjectModal(id){
+  const p = PROJECTS.find(x => x.id === id);
+  if (!p) return;
+  activeProjectId = id;
+  const d = getProjectDetail(p);
+
+  document.getElementById('mYear').textContent = d.year;
+  document.getElementById('mCode').textContent = p.code;
+  document.getElementById('mTitle').textContent = p.name;
+  document.getElementById('mLastUpdated').textContent = d.lastUpdated;
+  document.getElementById('mLastUpdatedBy').textContent = d.lastUpdatedBy;
+  document.getElementById('mChangedBadge').classList.add('hidden');
+
+  const statusSel = document.getElementById('mStatus');
+  statusSel.innerHTML = STAGES.map(s => `<option value="${s.id}" ${s.id===p.stage?'selected':''}>${s.label}</option>`).join('');
+
+  document.getElementById('mProjectType').value = d.projectType;
+  document.getElementById('mBioSpectrum').value = d.bioSpectrum;
+  document.getElementById('mEntity').value = d.entity;
+  document.getElementById('mBPRunning').value = d.bpRunning;
+  document.getElementById('mBPContracting').value = d.bp;
+
+  const bpInvoiceSel = document.getElementById('mBPInvoice');
+  bpInvoiceSel.innerHTML = `<option value="">${d.bp}</option>` +
+    BUSINESS_PARTNERS.filter(b => b !== d.bp).slice(0,3).map(b => `<option>${b}</option>`).join('');
+
+  const delivBody = document.getElementById('mDeliverables');
+  delivBody.innerHTML = d.deliverables.length ? d.deliverables.map(row => `
+    <tr class="grid-row border-t border-slate-100">
+      <td class="px-2.5 py-1.5"><input type="date" value="${row.expected}" class="field-input !py-1 !text-xs" /></td>
+      <td class="px-2.5 py-1.5"><input type="date" value="${row.effective}" class="field-input !py-1 !text-xs" /></td>
+      <td class="px-2.5 py-1.5"><input type="text" value="${escapeHtml(row.name)}" class="field-input !py-1 !text-xs" /></td>
+    </tr>`).join('') : `<tr><td colspan="3" class="px-2.5 py-4 text-center text-slate-400 text-xs">No deliverables logged yet</td></tr>`;
+
+  const notesList = document.getElementById('mNotesList');
+  notesList.innerHTML = d.notes.length ? d.notes.map(n => `
+    <div class="bg-hitt-canvas border border-slate-200 rounded-lg px-3 py-2">
+      <div class="flex items-center justify-between mb-0.5">
+        <span class="text-[11px] font-bold text-hitt-navy">${escapeHtml(n.author)}</span>
+        <span class="text-[10px] text-slate-400 font-mono">${n.date}</span>
+      </div>
+      <p class="text-xs text-hitt-ink leading-snug">${escapeHtml(n.text)}</p>
+    </div>`).join('') : `<div class="text-xs text-slate-400 text-center py-6">No notes yet — be the first to add one</div>`;
+
+  const quotBody = document.getElementById('mQuotations');
+  quotBody.innerHTML = d.quotations.length ? d.quotations.map(q => `
+    <tr class="grid-row border-t border-slate-100">
+      <td class="px-2.5 py-1.5 font-mono text-[11px]">${q.date}</td>
+      <td class="px-2.5 py-1.5">${escapeHtml(q.details)}</td>
+      <td class="px-2.5 py-1.5 text-right font-mono">€${money(q.amountQuoted)}</td>
+      <td class="px-2.5 py-1.5 text-right font-mono">€${money(q.expenses)}</td>
+      <td class="px-2.5 py-1.5 text-right font-mono">€${money(q.discount)}</td>
+      <td class="px-2.5 py-1.5 text-right font-mono font-bold text-hitt-ink">€${money(q.finalQuotation)}</td>
+      <td class="px-2.5 py-1.5 text-hitt-steel">${escapeHtml(q.user)}</td>
+    </tr>`).join('') : `<tr><td colspan="7" class="px-2.5 py-4 text-center text-slate-400 text-xs">No quotations recorded yet</td></tr>`;
+
+  const expBody = document.getElementById('mExpenses');
+  expBody.innerHTML = d.expenseRecords.length ? d.expenseRecords.map(x => `
+    <tr class="grid-row border-t border-slate-100">
+      <td class="px-2.5 py-1.5 font-mono text-[11px]">${x.date}</td>
+      <td class="px-2.5 py-1.5">${escapeHtml(x.category)}</td>
+      <td class="px-2.5 py-1.5">${escapeHtml(x.concept)}</td>
+      <td class="px-2.5 py-1.5 text-hitt-steel">${escapeHtml(x.username)}</td>
+      <td class="px-2.5 py-1.5 text-center">${x.invoiceable ? '<span class="text-hitt-green font-bold">✓</span>' : '<span class="text-slate-300">—</span>'}</td>
+      <td class="px-2.5 py-1.5 text-right font-mono">€${money(x.amount)}</td>
+    </tr>`).join('') : `<tr><td colspan="6" class="px-2.5 py-4 text-center text-slate-400 text-xs">No expenses recorded yet</td></tr>`;
+
+  document.getElementById('mNotInvoiceable').checked = d.notInvoiceable;
+
+  document.querySelectorAll('[data-mtab]').forEach(b => b.setAttribute('aria-selected', b.dataset.mtab === 'general' ? 'true' : 'false'));
+  document.getElementById('paneGeneral').classList.remove('hidden');
+  document.getElementById('paneBudget').classList.add('hidden');
+
+  modalPanel.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', () => document.getElementById('mChangedBadge').classList.remove('hidden'), { once: true });
+  });
+
+  modalOverlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProjectModal(){
+  modalOverlay.classList.add('hidden');
+  document.body.style.overflow = '';
+  activeProjectId = null;
+}
+
+document.getElementById('mClose').addEventListener('click', closeProjectModal);
+modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeProjectModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !modalOverlay.classList.contains('hidden')) closeProjectModal();
+});
+
+document.getElementById('mSave').addEventListener('click', () => {
+  const p = PROJECTS.find(x => x.id === activeProjectId);
+  if (!p) return;
+  const newStatus = document.getElementById('mStatus').value;
+  const statusChanged = newStatus !== p.stage;
+  p.stage = newStatus;
+  document.getElementById('mChangedBadge').classList.add('hidden');
+  renderBoard();
+  updateTabCounts();
+  toast(`<span class="font-mono text-xs opacity-80">${p.code}</span> saved${statusChanged ? ' · status updated' : ''}`, 'green');
+  closeProjectModal();
+});
+
+document.querySelectorAll('[data-mtab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-mtab]').forEach(b => b.setAttribute('aria-selected', 'false'));
+    btn.setAttribute('aria-selected', 'true');
+    document.getElementById('paneGeneral').classList.toggle('hidden', btn.dataset.mtab !== 'general');
+    document.getElementById('paneBudget').classList.toggle('hidden', btn.dataset.mtab !== 'budget');
+  });
+});
+
+document.getElementById('mAddNote').addEventListener('click', () => {
+  const input = document.getElementById('mNewNote');
+  const text = input.value.trim();
+  if (!text) return;
+  const notesList = document.getElementById('mNotesList');
+  const empty = notesList.querySelector('.text-center');
+  if (empty) empty.remove();
+  const el = document.createElement('div');
+  el.className = 'bg-hitt-canvas border border-hitt-amber/50 rounded-lg px-3 py-2 pop-in';
+  el.innerHTML = `
+    <div class="flex items-center justify-between mb-0.5">
+      <span class="text-[11px] font-bold text-hitt-navy">you</span>
+      <span class="text-[10px] text-slate-400 font-mono">${fmtDate(new Date('2026-07-28'))}</span>
+    </div>
+    <p class="text-xs text-hitt-ink leading-snug">${escapeHtml(text)}</p>`;
+  notesList.prepend(el);
+  input.value = '';
+  document.getElementById('mChangedBadge').classList.remove('hidden');
+});
+
+document.getElementById('mAddDeliverable').addEventListener('click', () => {
+  const body = document.getElementById('mDeliverables');
+  const empty = body.querySelector('td[colspan]');
+  if (empty) empty.closest('tr').remove();
+  const tr = document.createElement('tr');
+  tr.className = 'grid-row border-t border-slate-100 pop-in';
+  tr.innerHTML = `
+    <td class="px-2.5 py-1.5"><input type="date" class="field-input !py-1 !text-xs" /></td>
+    <td class="px-2.5 py-1.5"><input type="date" class="field-input !py-1 !text-xs" /></td>
+    <td class="px-2.5 py-1.5"><input type="text" placeholder="New deliverable" class="field-input !py-1 !text-xs" /></td>`;
+  body.appendChild(tr);
+  tr.querySelector('input[type="text"]').focus();
+  document.getElementById('mChangedBadge').classList.remove('hidden');
+});
+
+/* ============================== NEW PROJECT MODAL ======================= */
+const newProjectOverlay = document.getElementById('newProjectOverlay');
+const NP_PLACEHOLDER = 'Type here the name…';
+const NP_YEAR = 2026;
+
+function nextProjectNumber(){
+  // Mirrors GetNextProjectNumber(year): highest existing code for the year + 1
+  const codes = PROJECTS.map(p => parseInt(p.code, 10)).filter(n => !isNaN(n) && String(n).startsWith(String(NP_YEAR).slice(2)));
+  const max = codes.length ? Math.max(...codes) : (NP_YEAR % 100) * 1000;
+  return max + 1;
+}
+
+function calcFinalQuotation(){
+  const amount = parseFloat(document.getElementById('npAmountQuoted').value) || 0;
+  const discount = parseFloat(document.getElementById('npDiscountNeg').value) || 0;
+  const expenses = parseFloat(document.getElementById('npExpenses').value) || 0;
+  document.getElementById('npFinalQuot').value = money(amount - discount + expenses);
+}
+['npAmountQuoted','npDiscountNeg','npExpenses'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    calcFinalQuotation();
+    markNewProjectDirty();
+  });
+});
+
+function markNewProjectDirty(){
+  const badge = document.getElementById('npSavedBadge');
+  badge.textContent = 'Unsaved';
+  badge.classList.remove('text-hitt-green');
+  badge.classList.add('text-hitt-red');
+}
+function markNewProjectSaved(){
+  const badge = document.getElementById('npSavedBadge');
+  badge.textContent = 'Saved';
+  badge.classList.remove('text-hitt-red');
+  badge.classList.add('text-hitt-green');
+}
+
+function openNewProjectModal(){
+  document.getElementById('npName').value = NP_PLACEHOLDER;
+  document.getElementById('npNumber').textContent = nextProjectNumber();
+  document.getElementById('npEntity').value = '';
+  document.getElementById('npBioSpectrum').value = '';
+  document.getElementById('npProjectType').value = '';
+  document.getElementById('npOwner').value = '';
+  document.getElementById('npBPRunning').value = '';
+  document.getElementById('npBPContracting').value = '';
+  document.getElementById('npBPInvoice').innerHTML = '<option value="">—</option>';
+  document.getElementById('npQuotationDate').value = '2026-07-28';
+  document.getElementById('npExpenses').value = '';
+  document.getElementById('npAmountQuoted').value = '';
+  document.getElementById('npDiscountNeg').value = '';
+  document.getElementById('npDetails').value = '';
+  document.getElementById('npFinalQuot').value = '0.00';
+
+  const statusSel = document.getElementById('npStatus');
+  statusSel.innerHTML = STAGES.filter(s => s.set === 'alive' || s.id === 'lead')
+    .map(s => `<option value="${s.id}" ${s.id==='lead'?'selected':''}>${s.label}</option>`).join('');
+
+  markNewProjectSaved();
+
+  const nameInput = document.getElementById('npName');
+  nameInput.addEventListener('focus', function selectPlaceholder(){
+    if (this.value === NP_PLACEHOLDER) this.select();
+  });
+
+  newProjectOverlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => nameInput.focus(), 50);
+}
+
+function closeNewProjectModal(){
+  newProjectOverlay.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('btnNewProject').addEventListener('click', openNewProjectModal);
+document.getElementById('npClose').addEventListener('click', closeNewProjectModal);
+document.getElementById('npCancel').addEventListener('click', closeNewProjectModal);
+newProjectOverlay.addEventListener('click', (e) => { if (e.target === newProjectOverlay) closeNewProjectModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !newProjectOverlay.classList.contains('hidden')) closeNewProjectModal();
+});
+
+newProjectOverlay.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('input', markNewProjectDirty);
+});
+
+document.getElementById('npSave').addEventListener('click', () => {
+  const name = document.getElementById('npName').value.trim();
+  const entity = document.getElementById('npEntity').value;
+  const status = document.getElementById('npStatus').value;
+  const owner = document.getElementById('npOwner').value;
+  const bpContracting = document.getElementById('npBPContracting').value.trim();
+  const bpRunning = document.getElementById('npBPRunning').value.trim();
+
+  const missing = [];
+  if (!name || name === NP_PLACEHOLDER) missing.push('Project name');
+  if (!bpContracting && !bpRunning) missing.push('Contracting Business Partner');
+  if (!status) missing.push('Status');
+  if (!entity) missing.push('Entity');
+  if (!owner) missing.push('Project owner');
+
+  if (missing.length){
+    toast(`Missing required data: <b>${missing.join(', ')}</b>`, 'red');
+    return;
+  }
+
+  const number = document.getElementById('npNumber').textContent;
+  const code = String(number);
+  const newProject = { id: idCounter++, code, name, stage: status };
+  PROJECTS.push(newProject);
+
+  markNewProjectSaved();
+  renderBoard();
+  updateTabCounts();
+  toast(`<span class="font-mono text-xs opacity-80">${code}</span> project <b>created</b>`, 'green');
+  closeNewProjectModal();
+
+  currentTab = STAGE_BY_ID[status].set;
+  document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === currentTab ? 'true' : 'false'));
+  renderBoard();
+});
+
+/* ============================== EVENTS ================================= */
+document.querySelectorAll('[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', 'false'));
+    btn.setAttribute('aria-selected', 'true');
+    currentTab = btn.dataset.tab;
+    renderBoard();
+  });
+});
+
+const searchBox = document.getElementById('searchBox');
+const clearBtn = document.getElementById('clearSearch');
+searchBox.addEventListener('input', () => {
+  searchTerm = searchBox.value.trim();
+  clearBtn.classList.toggle('hidden', searchTerm.length === 0);
+  renderBoard();
+  updateTabCounts();
+});
+clearBtn.addEventListener('click', () => {
+  searchBox.value = '';
+  searchTerm = '';
+  clearBtn.classList.add('hidden');
+  renderBoard();
+  updateTabCounts();
+  searchBox.focus();
+});
+
+/* ============================== INIT ==================================== */
+renderBoard();
+updateTabCounts();
+</script>
 </body>
 </html>
